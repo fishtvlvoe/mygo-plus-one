@@ -23,9 +23,12 @@ class UserProfileModal
         // 加入前台 Modal HTML
         add_action('wp_footer', [$instance, 'renderModal']);
         
-        // 註冊 AJAX 處理
+        // 註冊 AJAX 處理（登入用戶）
         add_action('wp_ajax_mygo_save_profile', [$instance, 'handleSaveProfile']);
         add_action('wp_ajax_mygo_select_variant', [$instance, 'handleSelectVariant']);
+        
+        // 註冊 AJAX 處理（未登入用戶 - 用於除錯）
+        add_action('wp_ajax_nopriv_mygo_save_profile', [$instance, 'handleSaveProfile']);
         
         // 加入前台腳本
         add_action('wp_enqueue_scripts', [$instance, 'enqueueScripts']);
@@ -239,13 +242,27 @@ class UserProfileModal
      */
     public function handleSaveProfile(): void
     {
-        check_ajax_referer('mygo_ajax', 'nonce');
+        // 記錄請求資訊
+        error_log('MYGO AJAX: handleSaveProfile called');
+        error_log('MYGO AJAX: POST data = ' . print_r($_POST, true));
+        error_log('MYGO AJAX: is_user_logged_in = ' . (is_user_logged_in() ? 'yes' : 'no'));
+        
+        // 驗證 nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mygo_ajax')) {
+            error_log('MYGO AJAX: Nonce verification failed');
+            wp_send_json_error(['message' => 'Nonce 驗證失敗']);
+            return;
+        }
 
         if (!is_user_logged_in()) {
+            error_log('MYGO AJAX: User not logged in');
             wp_send_json_error(['message' => '請先登入']);
+            return;
         }
 
         $userId = get_current_user_id();
+        error_log('MYGO AJAX: User ID = ' . $userId);
+        
         $validator = new UserProfileValidator();
 
         $data = [
@@ -258,17 +275,25 @@ class UserProfileModal
         if (!empty($_POST['email'])) {
             $data['email'] = sanitize_email($_POST['email']);
         }
+        
+        error_log('MYGO AJAX: Data to validate = ' . print_r($data, true));
 
         $validation = $validator->validateAndSanitize($data);
+        
+        error_log('MYGO AJAX: Validation result = ' . print_r($validation, true));
 
         if (!$validation['valid']) {
+            error_log('MYGO AJAX: Validation failed');
             wp_send_json_error([
                 'message' => '資料驗證失敗',
                 'errors' => $validation['errors'],
             ]);
+            return;
         }
 
         $validator->updateUserProfile($userId, $validation['sanitized']);
+        
+        error_log('MYGO AJAX: Profile updated successfully');
 
         wp_send_json_success([
             'message' => '資料已儲存',
