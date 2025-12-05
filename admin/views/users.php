@@ -26,7 +26,7 @@
                         <th>LINE 名稱</th>
                         <th>WordPress 帳號</th>
                         <th>聯絡資訊</th>
-                        <th>MYGO 角色</th>
+                        <th>BuyGo 角色</th>
                         <th>註冊時間</th>
                         <th>操作</th>
                     </tr>

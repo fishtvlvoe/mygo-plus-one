@@ -13,7 +13,7 @@ $menu_items = [
 <div class="mygo-top-nav">
     <a href="<?php echo admin_url('admin.php?page=mygo-plus-one'); ?>" class="mygo-top-nav-logo">
         <div class="mygo-top-nav-logo-icon">🛍️</div>
-        <span class="mygo-top-nav-logo-text">MYGO +1</span>
+        <span class="mygo-top-nav-logo-text">BuyGo</span>
     </a>
     
     <nav class="mygo-top-nav-menu">

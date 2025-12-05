@@ -249,7 +249,7 @@ $users = get_users(['number' => 100, 'orderby' => 'display_name']);
 
                 <div style="margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px;">
                     <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">設定使用者角色</h4>
-                    <p style="font-size: 13px; color: #6b7280; margin: 0 0 12px 0;">手動設定現有使用者的 MYGO 角色</p>
+                    <p style="font-size: 13px; color: #6b7280; margin: 0 0 12px 0;">手動設定現有使用者的 BuyGo 角色</p>
                     <form method="post" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
                         <?php wp_nonce_field('mygo_set_user_role', '_wpnonce_set_role'); ?>
                         <div class="mygo-form-group" style="margin: 0; flex: 1; min-width: 200px;">

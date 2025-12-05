@@ -605,7 +605,7 @@ class LineWebhookHandler implements LineWebhookHandlerInterface
         $userId = $event['source']['userId'] ?? '';
         $replyToken = $event['replyToken'] ?? '';
 
-        $message = "🎉 歡迎使用 MYGO +1！\n\n";
+        $message = "🎉 歡迎使用 BuyGo！\n\n";
         $message .= "📱 買家功能：\n";
         $message .= "• 在社群貼文下留言 +1 即可下單\n\n";
         $message .= "🏪 賣家功能：\n";

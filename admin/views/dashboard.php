@@ -9,7 +9,7 @@
         </div>
         <div class="mygo-welcome-text">
             <h2>歡迎回來，<?php echo esc_html(wp_get_current_user()->display_name); ?>！</h2>
-            <p>MYGO +1 管理後台</p>
+            <p>BuyGo 管理後台</p>
         </div>
     </div>
 

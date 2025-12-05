@@ -471,7 +471,7 @@ class LineLoginPage
                     </div>
                     <?php endif; ?>
                     <div class="info-row">
-                        <span class="info-label">MYGO 角色</span>
+                        <span class="info-label">BuyGo 角色</span>
                         <span class="info-value"><?php echo esc_html($roleNames[$mygoRole] ?? '未設定'); ?></span>
                     </div>
                 </div>
