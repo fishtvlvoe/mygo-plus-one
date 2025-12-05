@@ -1,0 +1,74 @@
+/**
+ * MYGO +1 Public Styles
+ * iOS Cupertino Design System
+ */
+
+:root {
+    --mygo-bg: #f2f2f7;
+    --mygo-card-bg: #ffffff;
+    --mygo-primary: #007aff;
+    --mygo-text: #1c1c1e;
+    --mygo-text-secondary: #8e8e93;
+    --mygo-border: #c6c6c8;
+    --mygo-radius: 20px;
+    --mygo-radius-sm: 12px;
+}
+
+.mygo-product-preview {
+    background: var(--mygo-bg);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.mygo-product-card {
+    background: var(--mygo-card-bg);
+    border-radius: var(--mygo-radius);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.mygo-product-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+.mygo-product-info {
+    padding: 20px;
+}
+
+.mygo-product-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--mygo-text);
+    margin-bottom: 8px;
+}
+
+.mygo-product-price {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--mygo-primary);
+}
+
+.mygo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.mygo-modal-content {
+    background: var(--mygo-card-bg);
+    border-radius: var(--mygo-radius) var(--mygo-radius) 0 0;
+    width: 100%;
+    max-width: 500px;
+    padding: 24px;
+    max-height: 80vh;
+    overflow-y: auto;
+}

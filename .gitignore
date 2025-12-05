@@ -1,0 +1,56 @@
+# WordPress
+wp-config.php
+.htaccess
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build files
+*.min.js
+*.min.css
+*.map
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.log
+*.tmp
+*~
+*.bak
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Composer
+composer.lock
+
+# NPM
+package-lock.json
+yarn.lock
+
+# WordPress debug
+debug.log
+error_log
+
+# Backup files
+*.sql
+*.sql.gz
+backup/
+backups/
+
+# Cache
+cache/
+*.cache
