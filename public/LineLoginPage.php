@@ -542,6 +542,7 @@ class LineLoginPage
                         const formData = new FormData();
                         formData.append('action', 'mygo_save_profile');
                         formData.append('nonce', '<?php echo wp_create_nonce('mygo_ajax'); ?>');
+                        formData.append('email', data.email || '');
                         formData.append('phone', data.phone);
                         formData.append('address', data.address);
                         formData.append('shipping_method', data.shipping_method);

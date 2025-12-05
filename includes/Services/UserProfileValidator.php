@@ -193,6 +193,16 @@ class UserProfileValidator
         $errors = [];
         $sanitized = [];
 
+        // Email
+        if (isset($data['email'])) {
+            $email = sanitize_email($data['email']);
+            if (!is_email($email)) {
+                $errors['email'] = '請輸入有效的 email 地址';
+            } else {
+                $sanitized['email'] = $email;
+            }
+        }
+
         // 電話
         if (isset($data['phone'])) {
             $phone = preg_replace('/[^\d]/', '', $data['phone']);
