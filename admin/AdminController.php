@@ -30,6 +30,7 @@ class AdminController
     {
         register_setting('mygo_settings', 'mygo_line_channel_access_token');
         register_setting('mygo_settings', 'mygo_line_channel_secret');
+        register_setting('mygo_settings', 'mygo_liff_id');
         register_setting('mygo_settings', 'mygo_line_login_channel_id');
         register_setting('mygo_settings', 'mygo_line_login_channel_secret');
         register_setting('mygo_settings', 'mygo_default_space_id');
