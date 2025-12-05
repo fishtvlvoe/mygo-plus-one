@@ -54,3 +54,8 @@ backups/
 # Cache
 cache/
 *.cache
+
+# Local Dev Scripts
+test-*.php
+set-line-tokens.php
+quick-set-tokens.php
