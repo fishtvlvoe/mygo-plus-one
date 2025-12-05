@@ -55,6 +55,10 @@ class UserProfileModal
         $validator = new UserProfileValidator();
         $profile = $validator->getUserProfile(get_current_user_id());
         $shippingMethods = $validator->getAvailableShippingMethods();
+        
+        // 檢查是否需要補充 email
+        $currentUser = wp_get_current_user();
+        $needsEmail = strpos($currentUser->user_email, '@temp.line.mygo.local') !== false;
         ?>
         
         <!-- 資料補充 Modal -->
@@ -65,6 +69,15 @@ class UserProfileModal
                     <button type="button" class="mygo-modal-close">&times;</button>
                 </div>
                 <form id="mygo-profile-form">
+                    <?php if ($needsEmail): ?>
+                    <div class="mygo-form-group">
+                        <label for="mygo-email"><?php esc_html_e('Email', 'mygo-plus-one'); ?> <span style="color: #ff3b30;">*</span></label>
+                        <input type="email" id="mygo-email" name="email" value="" placeholder="your@email.com" required>
+                        <span class="mygo-error" id="mygo-email-error"></span>
+                        <small style="color: #666; font-size: 12px;">LINE 未提供 email，請填寫您的真實 email</small>
+                    </div>
+                    <?php endif; ?>
+                    
                     <div class="mygo-form-group">
                         <label for="mygo-phone"><?php esc_html_e('電話', 'mygo-plus-one'); ?></label>
                         <input type="tel" id="mygo-phone" name="phone" value="<?php echo esc_attr($profile['phone']); ?>" placeholder="09xxxxxxxx" required>
@@ -240,6 +253,11 @@ class UserProfileModal
             'address' => sanitize_text_field($_POST['address'] ?? ''),
             'shipping_method' => sanitize_text_field($_POST['shipping_method'] ?? ''),
         ];
+        
+        // 如果提供了 email，加入資料中
+        if (!empty($_POST['email'])) {
+            $data['email'] = sanitize_email($_POST['email']);
+        }
 
         $validation = $validator->validateAndSanitize($data);
 

@@ -15,6 +15,11 @@ class UserProfileValidator
      * 下單必要欄位
      */
     private const REQUIRED_FIELDS_FOR_ORDER = ['phone', 'address', 'shipping_method'];
+    
+    /**
+     * 帳號必要欄位（如果使用臨時 email）
+     */
+    private const REQUIRED_FIELDS_FOR_ACCOUNT = ['email'];
 
     /**
      * 欄位中文名稱
@@ -43,10 +48,21 @@ class UserProfileValidator
     {
         $missing = [];
 
+        // 檢查下單必要欄位
         foreach (self::REQUIRED_FIELDS_FOR_ORDER as $field) {
             $value = get_user_meta($userId, '_mygo_' . $field, true);
             if (empty($value)) {
                 $missing[] = $field;
+            }
+        }
+        
+        // 檢查是否需要補充 email
+        $needsEmail = get_user_meta($userId, '_mygo_needs_email', true);
+        if ($needsEmail) {
+            $user = get_userdata($userId);
+            // 如果 email 還是臨時的，就需要補充
+            if ($user && strpos($user->user_email, '@temp.line.mygo.local') !== false) {
+                $missing[] = 'email';
             }
         }
 
@@ -100,6 +116,20 @@ class UserProfileValidator
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {
                 update_user_meta($userId, '_mygo_' . $field, sanitize_text_field($data[$field]));
+            }
+        }
+        
+        // 如果提供了 email，更新 WordPress 使用者的 email
+        if (isset($data['email']) && is_email($data['email'])) {
+            $user = get_userdata($userId);
+            if ($user && strpos($user->user_email, '@temp.line.mygo.local') !== false) {
+                // 只有當前是臨時 email 才允許更新
+                wp_update_user([
+                    'ID' => $userId,
+                    'user_email' => sanitize_email($data['email']),
+                ]);
+                // 移除需要補充 email 的標記
+                delete_user_meta($userId, '_mygo_needs_email');
             }
         }
 

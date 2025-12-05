@@ -42,7 +42,7 @@ class LineAuthHandler implements LineAuthHandlerInterface
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
             'state' => $state,
-            'scope' => 'openid',
+            'scope' => 'openid profile email',  // 申請 profile 和 email 權限
         ];
 
         return self::LINE_AUTH_URL . '?' . http_build_query($params);
@@ -294,8 +294,11 @@ class LineAuthHandler implements LineAuthHandlerInterface
             $counter++;
         }
         
-        // Email：優先使用 LINE 提供的，否則使用唯一的假 email
-        $email = $lineProfile['email'] ?: $username . '@line.mygo.local';
+        // Email 處理：
+        // 1. 優先使用 LINE 提供的真實 email
+        // 2. 如果沒有，使用臨時 email（格式：username@temp.line.mygo.local）
+        $hasRealEmail = !empty($lineProfile['email']);
+        $email = $hasRealEmail ? $lineProfile['email'] : $username . '@temp.line.mygo.local';
         
         $userId = wp_create_user($username, wp_generate_password(20, true, true), $email);
         
@@ -312,6 +315,11 @@ class LineAuthHandler implements LineAuthHandlerInterface
             'display_name' => $displayName,
             'first_name' => $displayName,
         ]);
+        
+        // 如果沒有真實 email，標記需要補充
+        if (!$hasRealEmail) {
+            update_user_meta($userId, '_mygo_needs_email', true);
+        }
 
         // 同步資料
         $this->syncUserData($lineProfile, $userId);
@@ -326,6 +334,7 @@ class LineAuthHandler implements LineAuthHandlerInterface
             'user_id' => $userId,
             'is_new' => true,
             'needs_profile' => true,
+            'needs_email' => !$hasRealEmail,  // 標記是否需要補充 email
         ];
     }
 }
