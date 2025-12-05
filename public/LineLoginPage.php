@@ -277,15 +277,23 @@ class LineLoginPage
                     
                     if (hasError) return false;
                     
-                    sessionStorage.setItem('mygo_pre_login_data', JSON.stringify({
+                    const loginData = {
                         email: email,
                         phone: phoneClean,
                         address: address,
                         shipping_method: shipping
-                    }));
+                    };
+                    
+                    // 儲存到 sessionStorage
+                    sessionStorage.setItem('mygo_pre_login_data', JSON.stringify(loginData));
+                    
+                    // 同時儲存到 cookie（作為備份，因為 sessionStorage 可能在跨域時失效）
+                    document.cookie = 'mygo_pre_login_data=' + encodeURIComponent(JSON.stringify(loginData)) + '; path=/; max-age=600';
                     
                     const redirectTo = '<?php echo esc_js(home_url('/portal/')); ?>';
                     sessionStorage.setItem('mygo_redirect_after_login', redirectTo);
+                    
+                    console.log('MYGO: Data saved to sessionStorage and cookie');
                     
                     // 提交 form 導向 LINE
                     lineForm.submit();
@@ -352,6 +360,26 @@ class LineLoginPage
             $this->renderError($loginResult['error'] ?? '建立帳號失敗');
             return;
         }
+        
+        // 嘗試從 cookie 讀取預先填寫的資料並儲存
+        if (isset($_COOKIE['mygo_pre_login_data'])) {
+            $preLoginData = json_decode(stripslashes($_COOKIE['mygo_pre_login_data']), true);
+            if ($preLoginData && is_array($preLoginData)) {
+                error_log('MYGO LineCallback: Found pre-login data in cookie');
+                $validator = new \Mygo\Services\UserProfileValidator();
+                $validation = $validator->validateAndSanitize($preLoginData);
+                
+                if ($validation['valid']) {
+                    $validator->updateUserProfile($loginResult['user_id'], $validation['sanitized']);
+                    error_log('MYGO LineCallback: Pre-login data saved successfully');
+                    // 清除 cookie
+                    setcookie('mygo_pre_login_data', '', time() - 3600, '/');
+                } else {
+                    error_log('MYGO LineCallback: Pre-login data validation failed: ' . print_r($validation['errors'], true));
+                }
+            }
+        }
+        
         $this->renderSuccess($result['profile'], $loginResult);
     }
 
@@ -550,82 +578,22 @@ class LineLoginPage
             </div>
             
             <script>
-            // 自動儲存預先填寫的資料並導向
+            // 清除 sessionStorage 和 cookie，然後導向
             document.addEventListener('DOMContentLoaded', function() {
-                // 從 sessionStorage 讀取資料
-                const preLoginData = sessionStorage.getItem('mygo_pre_login_data');
                 const redirectUrl = sessionStorage.getItem('mygo_redirect_after_login') || '<?php echo esc_js(home_url('/portal/')); ?>';
                 
-                console.log('MYGO Debug: preLoginData =', preLoginData);
+                console.log('MYGO Debug: 資料已在伺服器端儲存');
                 console.log('MYGO Debug: redirectUrl =', redirectUrl);
                 
-                if (preLoginData) {
-                    try {
-                        const data = JSON.parse(preLoginData);
-                        console.log('MYGO Debug: Parsed data =', data);
-                        
-                        // 自動儲存資料
-                        const formData = new FormData();
-                        formData.append('action', 'mygo_save_profile');
-                        formData.append('nonce', '<?php echo wp_create_nonce('mygo_ajax'); ?>');
-                        formData.append('email', data.email || '');
-                        formData.append('phone', data.phone);
-                        formData.append('address', data.address);
-                        formData.append('shipping_method', data.shipping_method);
-                        
-                        console.log('MYGO Debug: Sending AJAX request...');
-                        
-                        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(result => {
-                            console.log('MYGO Debug: AJAX response =', result);
-                            if (result.success) {
-                                console.log('個人資料已自動儲存');
-                                alert('資料已儲存！\nEmail: ' + data.email + '\n電話: ' + data.phone + '\n地址: ' + data.address + '\n寄送方式: ' + data.shipping_method);
-                                // 清除 sessionStorage
-                                sessionStorage.removeItem('mygo_pre_login_data');
-                                sessionStorage.removeItem('mygo_redirect_after_login');
-                                
-                                // 延遲 2 秒後導向
-                                setTimeout(function() {
-                                    window.location.href = redirectUrl;
-                                }, 2000);
-                            } else {
-                                console.error('儲存失敗:', result.data);
-                                alert('儲存失敗: ' + JSON.stringify(result.data));
-                                // 即使儲存失敗也導向
-                                setTimeout(function() {
-                                    window.location.href = redirectUrl;
-                                }, 3000);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('發生錯誤: ' + error.message);
-                            // 發生錯誤也導向
-                            setTimeout(function() {
-                                window.location.href = redirectUrl;
-                            }, 3000);
-                        });
-                    } catch (e) {
-                        console.error('解析資料失敗:', e);
-                        alert('解析資料失敗: ' + e.message);
-                        // 解析失敗也導向
-                        setTimeout(function() {
-                            window.location.href = redirectUrl;
-                        }, 2000);
-                    }
-                } else {
-                    console.log('MYGO Debug: No preLoginData found');
-                    alert('沒有找到預先填寫的資料，將直接導向');
-                    // 沒有預先填寫的資料，直接導向
-                    setTimeout(function() {
-                        window.location.href = redirectUrl;
-                    }, 2000);
-                }
+                // 清除 sessionStorage 和 cookie
+                sessionStorage.removeItem('mygo_pre_login_data');
+                sessionStorage.removeItem('mygo_redirect_after_login');
+                document.cookie = 'mygo_pre_login_data=; path=/; max-age=0';
+                
+                // 延遲 1.5 秒後導向
+                setTimeout(function() {
+                    window.location.href = redirectUrl;
+                }, 1500);
             });
             </script>
         </body>
