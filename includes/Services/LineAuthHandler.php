@@ -45,7 +45,8 @@ class LineAuthHandler implements LineAuthHandlerInterface
             'scope' => 'profile openid',  // 只申請 profile 權限，email 由前端表單收集
         ];
 
-        $authUrl = self::LINE_AUTH_URL . '?' . http_build_query($params);
+        // 使用 http_build_query 但要修正 scope 的編碼（LINE 要求用 %20 而非 +）
+        $authUrl = self::LINE_AUTH_URL . '?' . str_replace('+', '%20', http_build_query($params));
         error_log('MYGO LineAuth: Final Auth URL = ' . $authUrl);
         error_log('MYGO LineAuth: Scope = profile openid');
         
