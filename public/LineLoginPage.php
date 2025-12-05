@@ -556,9 +556,13 @@ class LineLoginPage
                 const preLoginData = sessionStorage.getItem('mygo_pre_login_data');
                 const redirectUrl = sessionStorage.getItem('mygo_redirect_after_login') || '<?php echo esc_js(home_url('/portal/')); ?>';
                 
+                console.log('MYGO Debug: preLoginData =', preLoginData);
+                console.log('MYGO Debug: redirectUrl =', redirectUrl);
+                
                 if (preLoginData) {
                     try {
                         const data = JSON.parse(preLoginData);
+                        console.log('MYGO Debug: Parsed data =', data);
                         
                         // 自動儲存資料
                         const formData = new FormData();
@@ -569,47 +573,58 @@ class LineLoginPage
                         formData.append('address', data.address);
                         formData.append('shipping_method', data.shipping_method);
                         
+                        console.log('MYGO Debug: Sending AJAX request...');
+                        
                         fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
                             method: 'POST',
                             body: formData
                         })
                         .then(response => response.json())
                         .then(result => {
+                            console.log('MYGO Debug: AJAX response =', result);
                             if (result.success) {
                                 console.log('個人資料已自動儲存');
+                                alert('資料已儲存！\nEmail: ' + data.email + '\n電話: ' + data.phone + '\n地址: ' + data.address + '\n寄送方式: ' + data.shipping_method);
                                 // 清除 sessionStorage
                                 sessionStorage.removeItem('mygo_pre_login_data');
                                 sessionStorage.removeItem('mygo_redirect_after_login');
                                 
-                                // 延遲 1 秒後導向
+                                // 延遲 2 秒後導向
                                 setTimeout(function() {
                                     window.location.href = redirectUrl;
-                                }, 1000);
+                                }, 2000);
                             } else {
                                 console.error('儲存失敗:', result.data);
+                                alert('儲存失敗: ' + JSON.stringify(result.data));
                                 // 即使儲存失敗也導向
                                 setTimeout(function() {
                                     window.location.href = redirectUrl;
-                                }, 1500);
+                                }, 3000);
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
+                            alert('發生錯誤: ' + error.message);
                             // 發生錯誤也導向
                             setTimeout(function() {
                                 window.location.href = redirectUrl;
-                            }, 1500);
+                            }, 3000);
                         });
                     } catch (e) {
                         console.error('解析資料失敗:', e);
+                        alert('解析資料失敗: ' + e.message);
                         // 解析失敗也導向
-                        window.location.href = redirectUrl;
+                        setTimeout(function() {
+                            window.location.href = redirectUrl;
+                        }, 2000);
                     }
                 } else {
+                    console.log('MYGO Debug: No preLoginData found');
+                    alert('沒有找到預先填寫的資料，將直接導向');
                     // 沒有預先填寫的資料，直接導向
                     setTimeout(function() {
                         window.location.href = redirectUrl;
-                    }, 1500);
+                    }, 2000);
                 }
             });
             </script>

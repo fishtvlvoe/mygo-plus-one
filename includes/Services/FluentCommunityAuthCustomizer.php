@@ -33,6 +33,21 @@ class FluentCommunityAuthCustomizer
         
         // 設定未登入用戶的重導向 URL
         add_filter('fluent_community/portal_redirect_url', [$instance, 'setRedirectUrl'], 10, 2);
+        
+        // 允許在 FluentCommunity 中編輯 email（針對臨時 email）
+        add_filter('fluent_community/user_can_edit_email', [$instance, 'allowEmailEdit'], 10, 2);
+    }
+    
+    /**
+     * 允許編輯 email（如果是臨時 email）
+     */
+    public function allowEmailEdit(bool $canEdit, int $userId): bool
+    {
+        $user = get_userdata($userId);
+        if ($user && strpos($user->user_email, '@temp.line.mygo.local') !== false) {
+            return true;
+        }
+        return $canEdit;
     }
     
     /**

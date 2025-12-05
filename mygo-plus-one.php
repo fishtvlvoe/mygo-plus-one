@@ -4,7 +4,7 @@ defined('ABSPATH') or die;
 /**
  * Plugin Name: BuyGo
  * Description: 整合 LINE 官方帳號、FluentCart、FluentCommunity 與 FluentCRM，支援社群 +1 關鍵字下單功能
- * Version: 1.0.9
+ * Version: 1.1.0
  * Author: BuyGo Team
  * Author URI: https://buygo.tw
  * Plugin URI: https://buygo.tw
@@ -16,7 +16,7 @@ defined('ABSPATH') or die;
  */
 
 if (!defined('MYGO_PLUGIN_VERSION')) {
-    define('MYGO_PLUGIN_VERSION', '1.0.9');
+    define('MYGO_PLUGIN_VERSION', '1.1.0');
     define('MYGO_PLUGIN_DIR', plugin_dir_path(__FILE__));
     define('MYGO_PLUGIN_URL', plugin_dir_url(__FILE__));
     define('MYGO_PLUGIN_FILE', __FILE__);
