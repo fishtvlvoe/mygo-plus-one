@@ -42,7 +42,7 @@ class LineAuthHandler implements LineAuthHandlerInterface
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
             'state' => $state,
-            'scope' => 'openid profile email',  // 申請 profile 和 email 權限
+            'scope' => 'profile openid',  // 只申請 profile 權限，email 由前端表單收集
         ];
 
         return self::LINE_AUTH_URL . '?' . http_build_query($params);
