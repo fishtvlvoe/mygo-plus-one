@@ -296,9 +296,16 @@ class LineAuthHandler implements LineAuthHandlerInterface
         
         // Email 處理：
         // 1. 優先使用 LINE 提供的真實 email
-        // 2. 如果沒有，使用臨時 email（格式：username@temp.line.mygo.local）
+        // 2. 如果沒有，檢查是否有預先填寫的 email（從 sessionStorage）
+        // 3. 最後才使用臨時 email
         $hasRealEmail = !empty($lineProfile['email']);
-        $email = $hasRealEmail ? $lineProfile['email'] : $username . '@temp.line.mygo.local';
+        $email = $lineProfile['email'];
+        
+        if (!$hasRealEmail) {
+            // 嘗試從 user meta 取得預先填寫的 email（由前端儲存）
+            // 注意：這裡無法直接存取 sessionStorage，需要前端在登入成功後透過 AJAX 傳送
+            $email = $username . '@temp.line.mygo.local';
+        }
         
         $userId = wp_create_user($username, wp_generate_password(20, true, true), $email);
         

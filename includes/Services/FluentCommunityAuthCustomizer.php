@@ -102,6 +102,13 @@ class FluentCommunityAuthCustomizer
                 <!-- 資料表單 -->
                 <form id="mygo-pre-login-form" style="margin-bottom: 24px;">
                     <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; color: #333;">Email <span style="color: #ff3b30;">*</span></label>
+                        <input type="email" name="email" placeholder="your@email.com" required style="width: 100%; padding: 14px 16px; border: 1px solid #c6c6c8; border-radius: 12px; font-size: 16px;">
+                        <span class="error-msg" style="display: none; color: #ff3b30; font-size: 13px; margin-top: 6px;"></span>
+                        <small style="display: block; color: #666; font-size: 12px; margin-top: 4px;">如果 LINE 未提供 email，將使用此 email 建立帳號</small>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; color: #333;">電話</label>
                         <input type="tel" name="phone" placeholder="09xxxxxxxx" required style="width: 100%; padding: 14px 16px; border: 1px solid #c6c6c8; border-radius: 12px; font-size: 16px;">
                         <span class="error-msg" style="display: none; color: #ff3b30; font-size: 13px; margin-top: 6px;"></span>
@@ -188,6 +195,7 @@ class FluentCommunityAuthCustomizer
                 e.preventDefault();
                 
                 // 驗證表單
+                const email = form.querySelector('[name="email"]').value.trim();
                 const phone = form.querySelector('[name="phone"]').value.trim();
                 const address = form.querySelector('[name="address"]').value.trim();
                 const shipping = form.querySelector('[name="shipping_method"]').value;
@@ -196,6 +204,13 @@ class FluentCommunityAuthCustomizer
                 
                 // 清除之前的錯誤
                 form.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+                
+                // 驗證 email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError(form.querySelector('[name="email"]'), '請輸入有效的 email 地址');
+                    hasError = true;
+                }
                 
                 // 驗證電話
                 const phoneClean = phone.replace(/[^\d]/g, '');
@@ -222,6 +237,7 @@ class FluentCommunityAuthCustomizer
                 
                 // 儲存資料到 sessionStorage
                 sessionStorage.setItem('mygo_pre_login_data', JSON.stringify({
+                    email: email,
                     phone: phoneClean,
                     address: address,
                     shipping_method: shipping
