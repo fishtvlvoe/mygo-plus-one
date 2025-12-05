@@ -136,12 +136,6 @@ class LineLoginPage
                 <h1><?php echo $isRegister ? '歡迎加入 BuyGo' : '歡迎回來'; ?></h1>
                 <p class="subtitle"><?php echo $isRegister ? '請先填寫基本資料，再使用 LINE 帳號完成註冊' : '請先填寫基本資料，再使用 LINE 帳號登入'; ?></p>
                 
-                <!-- Debug 資訊 -->
-                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 12px;">
-                    <strong>Debug Info (測試用):</strong><br>
-                    Auth URL: <code style="word-break: break-all; display: block; margin-top: 4px;"><?php echo esc_html($authUrl); ?></code>
-                </div>
-                
                 <div id="mygo-pre-login-form">
                     <div class="form-group">
                         <label>Email <span style="color: #ff3b30;">*</span></label>
