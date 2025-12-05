@@ -326,20 +326,23 @@ class LineAuthHandler implements LineAuthHandlerInterface
         }
 
         // 建立新使用者
-        // 使用 LINE 名稱作為基礎，移除特殊字元
         $displayName = $lineProfile['displayName'];
-        $sanitizedName = sanitize_user(str_replace(' ', '_', $displayName), true);
         
-        // 如果清理後的名稱為空或太短，使用 LINE UID 的一部分
-        if (empty($sanitizedName) || strlen($sanitizedName) < 3) {
-            $sanitizedName = 'line_user_' . substr($lineProfile['userId'], -8);
+        // 優先使用 email 前綴作為使用者名稱
+        if (!empty($lineProfile['email'])) {
+            // 從 email 取得前綴（@ 之前的部分）
+            $emailPrefix = explode('@', $lineProfile['email'])[0];
+            $username = sanitize_user($emailPrefix, true);
+        } else {
+            // 如果沒有 email，使用 LINE UID 的後 8 碼
+            $username = 'line_' . substr($lineProfile['userId'], -8);
         }
         
         // 確保使用者名稱唯一
-        $username = $sanitizedName;
+        $originalUsername = $username;
         $counter = 1;
         while (username_exists($username)) {
-            $username = $sanitizedName . '_' . $counter;
+            $username = $originalUsername . $counter;
             $counter++;
         }
         
