@@ -277,10 +277,27 @@ class LineAuthHandler implements LineAuthHandlerInterface
         }
 
         // 建立新使用者
-        $username = 'line_' . substr($lineProfile['userId'], 0, 10) . '_' . wp_generate_password(4, false);
-        $email = $lineProfile['email'] ?: $username . '@line.user';
+        // 使用 LINE 名稱作為基礎，移除特殊字元
+        $displayName = $lineProfile['displayName'];
+        $sanitizedName = sanitize_user(str_replace(' ', '_', $displayName), true);
         
-        $userId = wp_create_user($username, wp_generate_password(), $email);
+        // 如果清理後的名稱為空或太短，使用 LINE UID 的一部分
+        if (empty($sanitizedName) || strlen($sanitizedName) < 3) {
+            $sanitizedName = 'line_user_' . substr($lineProfile['userId'], -8);
+        }
+        
+        // 確保使用者名稱唯一
+        $username = $sanitizedName;
+        $counter = 1;
+        while (username_exists($username)) {
+            $username = $sanitizedName . '_' . $counter;
+            $counter++;
+        }
+        
+        // Email：優先使用 LINE 提供的，否則使用唯一的假 email
+        $email = $lineProfile['email'] ?: $username . '@line.mygo.local';
+        
+        $userId = wp_create_user($username, wp_generate_password(20, true, true), $email);
         
         if (is_wp_error($userId)) {
             return [
@@ -289,10 +306,11 @@ class LineAuthHandler implements LineAuthHandlerInterface
             ];
         }
 
-        // 更新顯示名稱
+        // 更新顯示名稱（使用原始的 LINE 名稱）
         wp_update_user([
             'ID' => $userId,
-            'display_name' => $lineProfile['displayName'],
+            'display_name' => $displayName,
+            'first_name' => $displayName,
         ]);
 
         // 同步資料
