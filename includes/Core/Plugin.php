@@ -122,8 +122,8 @@ class Plugin
     public function registerAdminMenu(): void
     {
         add_menu_page(
-            __('MYGO +1', 'mygo-plus-one'),
-            __('MYGO +1', 'mygo-plus-one'),
+            __('BuyGo', 'mygo-plus-one'),
+            __('BuyGo', 'mygo-plus-one'),
             'manage_options',
             'mygo-plus-one',
             [$this, 'renderAdminPage'],

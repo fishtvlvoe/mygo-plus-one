@@ -133,10 +133,17 @@ class LineLoginPage
         <body>
             <div class="container">
                 <div class="logo">🛒</div>
-                <h1><?php echo $isRegister ? '歡迎加入 MYGO' : '歡迎回來'; ?></h1>
+                <h1><?php echo $isRegister ? '歡迎加入 BuyGo' : '歡迎回來'; ?></h1>
                 <p class="subtitle"><?php echo $isRegister ? '請先填寫基本資料，再使用 LINE 帳號完成註冊' : '請先填寫基本資料，再使用 LINE 帳號登入'; ?></p>
                 
                 <div id="mygo-pre-login-form">
+                    <div class="form-group">
+                        <label>Email <span style="color: #ff3b30;">*</span></label>
+                        <input type="email" name="email" placeholder="your@email.com" required>
+                        <span class="error-msg"></span>
+                        <small style="display: block; color: #666; font-size: 12px; margin-top: 4px;">如果 LINE 未提供 email，將使用此 email 建立帳號</small>
+                    </div>
+                    
                     <div class="form-group">
                         <label>電話</label>
                         <input type="tel" name="phone" placeholder="09xxxxxxxx" required>
@@ -231,12 +238,20 @@ class LineLoginPage
                 lineForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
+                    const email = form.querySelector('[name="email"]').value.trim();
                     const phone = form.querySelector('[name="phone"]').value.trim();
                     const address = form.querySelector('[name="address"]').value.trim();
                     const shipping = form.querySelector('[name="shipping_method"]').value;
                     
                     let hasError = false;
                     form.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+                    
+                    // 驗證 email
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        showError(form.querySelector('[name="email"]'), '請輸入有效的 email 地址');
+                        hasError = true;
+                    }
                     
                     const phoneClean = phone.replace(/[^\d]/g, '');
                     if (!/^09\d{8}$/.test(phoneClean)) {
@@ -257,6 +272,7 @@ class LineLoginPage
                     if (hasError) return false;
                     
                     sessionStorage.setItem('mygo_pre_login_data', JSON.stringify({
+                        email: email,
                         phone: phoneClean,
                         address: address,
                         shipping_method: shipping

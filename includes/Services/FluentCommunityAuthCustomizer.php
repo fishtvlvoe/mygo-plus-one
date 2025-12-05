@@ -91,7 +91,7 @@ class FluentCommunityAuthCustomizer
             <div style="background: white; border-radius: 24px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
                 <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 36px;">🛒</div>
                 <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 12px; color: #1a1a1a; text-align: center;">
-                    <?php echo $isRegister ? '歡迎加入 MYGO' : '歡迎回來'; ?>
+                    <?php echo $isRegister ? '歡迎加入 BuyGo' : '歡迎回來'; ?>
                 </h2>
                 <p style="color: #666; margin-bottom: 32px; font-size: 15px; line-height: 1.6; text-align: center;">
                     <?php echo $isRegister 
@@ -431,7 +431,7 @@ class FluentCommunityAuthCustomizer
         <body>
             <div class="container">
                 <div class="logo">🛒</div>
-                <h1><?php echo $isRegister ? '歡迎加入 MYGO' : '歡迎回來'; ?></h1>
+                <h1><?php echo $isRegister ? '歡迎加入 BuyGo' : '歡迎回來'; ?></h1>
                 <p class="subtitle">
                     <?php echo $isRegister 
                         ? '使用 LINE 帳號快速註冊，立即開始購物體驗' 
