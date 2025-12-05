@@ -68,6 +68,7 @@ class LineAuthHandler implements LineAuthHandlerInterface
         if (isset($tokenData['id_token'])) {
             $idTokenData = $this->decodeIdToken($tokenData['id_token']);
             error_log('MYGO LineCallback: ID Token decoded - sub = ' . ($idTokenData['sub'] ?? 'none'));
+            error_log('MYGO LineCallback: ID Token email = ' . ($idTokenData['email'] ?? 'none'));
         }
         
         if (!$idTokenData || !isset($idTokenData['sub'])) {
@@ -81,8 +82,17 @@ class LineAuthHandler implements LineAuthHandlerInterface
         // 嘗試取得完整 profile（如果有 profile scope）
         $profile = $this->getProfile($tokenData['access_token']);
         
+        // 如果 ID Token 沒有 email，嘗試透過 verify API 取得
+        $email = $idTokenData['email'] ?? null;
+        if (empty($email) && isset($tokenData['id_token'])) {
+            $verifiedData = $this->verifyIdToken($tokenData['id_token']);
+            $email = $verifiedData['email'] ?? null;
+            error_log('MYGO LineCallback: Verified email = ' . ($email ?? 'none'));
+        }
+        
         $displayName = $profile['displayName'] ?? $idTokenData['name'] ?? 'LINE User';
         error_log('MYGO LineCallback: Display name = ' . $displayName);
+        error_log('MYGO LineCallback: Final email = ' . ($email ?? 'none'));
         
         return [
             'success' => true,
@@ -90,7 +100,7 @@ class LineAuthHandler implements LineAuthHandlerInterface
                 'userId' => $idTokenData['sub'], // sub 就是 LINE user ID
                 'displayName' => $displayName,
                 'pictureUrl' => $profile['pictureUrl'] ?? $idTokenData['picture'] ?? '',
-                'email' => $idTokenData['email'] ?? null,
+                'email' => $email,
             ],
         ];
     }
@@ -158,6 +168,40 @@ class LineAuthHandler implements LineAuthHandlerInterface
 
         $payload = base64_decode(strtr($parts[1], '-_', '+/'));
         return json_decode($payload, true) ?: [];
+    }
+
+    /**
+     * 驗證 ID Token 並取得 email
+     * 參考 nextend-social-login-pro 的實作
+     */
+    private function verifyIdToken(string $idToken): array
+    {
+        $clientId = get_option('mygo_line_login_channel_id', '');
+        
+        $response = wp_remote_post('https://api.line.me/oauth2/v2.1/verify', [
+            'timeout' => 15,
+            'user-agent' => 'WordPress',
+            'body' => [
+                'id_token' => $idToken,
+                'client_id' => $clientId,
+            ],
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log('MYGO LineCallback: Verify ID Token failed - ' . $response->get_error_message());
+            return [];
+        }
+
+        $statusCode = wp_remote_retrieve_response_code($response);
+        if ($statusCode !== 200) {
+            error_log('MYGO LineCallback: Verify ID Token status = ' . $statusCode);
+            return [];
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+        
+        return $data ?: [];
     }
 
     /**
