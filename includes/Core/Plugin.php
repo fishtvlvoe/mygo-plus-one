@@ -166,12 +166,26 @@ class Plugin
             'mygo-settings',
             [$this, 'renderSettingsPage']
         );
+
+        add_submenu_page(
+            'mygo-plus-one',
+            __('Debug Log', 'mygo-plus-one'),
+            __('Debug Log', 'mygo-plus-one'),
+            'manage_options',
+            'mygo-debug-log',
+            [$this, 'renderDebugLogPage']
+        );
     }
 
     public function renderUsersPage(): void
     {
         $controller = new \Mygo\AdminController();
         $controller->renderUsers();
+    }
+
+    public function renderDebugLogPage(): void
+    {
+        include MYGO_PLUGIN_DIR . 'admin/views/debug-log.php';
     }
 
     public function enqueueAdminAssets(string $hook): void
