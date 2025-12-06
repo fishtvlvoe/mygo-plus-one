@@ -55,16 +55,6 @@ class UserProfileValidator
                 $missing[] = $field;
             }
         }
-        
-        // 檢查是否需要補充 email
-        $needsEmail = get_user_meta($userId, '_mygo_needs_email', true);
-        if ($needsEmail) {
-            $user = get_userdata($userId);
-            // 如果 email 還是臨時的，就需要補充
-            if ($user && strpos($user->user_email, '@temp.line.mygo.local') !== false) {
-                $missing[] = 'email';
-            }
-        }
 
         return [
             'valid' => empty($missing),
@@ -119,39 +109,8 @@ class UserProfileValidator
             }
         }
         
-        // 如果提供了 email，更新 WordPress 使用者的 email
-        if (isset($data['email']) && is_email($data['email'])) {
-            $user = get_userdata($userId);
-            if ($user) {
-                // 檢查是否為臨時 email 或空 email
-                $isTempEmail = strpos($user->user_email, '@temp.line.mygo.local') !== false;
-                $isEmpty = empty($user->user_email);
-                
-                if ($isTempEmail || $isEmpty) {
-                    // 更新 WordPress 使用者的 email
-                    wp_update_user([
-                        'ID' => $userId,
-                        'user_email' => sanitize_email($data['email']),
-                    ]);
-                    
-                    // 同步到 FluentCommunity（如果已安裝）
-                    if (function_exists('fluent_community')) {
-                        global $wpdb;
-                        $table = $wpdb->prefix . 'fcom_users';
-                        $wpdb->update(
-                            $table,
-                            ['user_email' => sanitize_email($data['email'])],
-                            ['user_id' => $userId],
-                            ['%s'],
-                            ['%d']
-                        );
-                    }
-                    
-                    // 移除需要補充 email 的標記
-                    delete_user_meta($userId, '_mygo_needs_email');
-                }
-            }
-        }
+        // Email 更新已在註冊時強制要求，這裡不再處理
+        // 如果未來需要允許使用者更改 email，可以在這裡實作
 
         return true;
     }

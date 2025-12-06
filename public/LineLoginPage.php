@@ -145,7 +145,7 @@ class LineLoginPage
                         <label>Email <span style="color: #ff3b30;">*</span></label>
                         <input type="email" name="email" placeholder="your@email.com" required>
                         <span class="error-msg"></span>
-                        <small style="display: block; color: #666; font-size: 12px; margin-top: 4px;">如果 LINE 未提供 email，將使用此 email 建立帳號</small>
+                        <small style="display: block; color: #666; font-size: 12px; margin-top: 4px;">請提供真實 email，用於接收訂單通知和帳號管理</small>
                     </div>
                     
                     <div class="form-group">

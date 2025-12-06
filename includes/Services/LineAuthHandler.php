@@ -328,15 +328,43 @@ class LineAuthHandler implements LineAuthHandlerInterface
         // 建立新使用者
         $displayName = $lineProfile['displayName'];
         
-        // 優先使用 email 前綴作為使用者名稱
-        if (!empty($lineProfile['email'])) {
-            // 從 email 取得前綴（@ 之前的部分）
-            $emailPrefix = explode('@', $lineProfile['email'])[0];
-            $username = sanitize_user($emailPrefix, true);
-        } else {
-            // 如果沒有 email，使用 LINE UID 的後 8 碼
-            $username = 'line_' . substr($lineProfile['userId'], -8);
+        // Email 處理：強制要求真實 email
+        // 1. 優先使用 LINE 提供的 email
+        // 2. 如果 LINE 沒有提供，必須從前端表單取得
+        $email = $lineProfile['email'];
+        
+        if (empty($email)) {
+            // 嘗試從 cookie 取得預先填寫的 email
+            if (isset($_COOKIE['mygo_pre_login_data'])) {
+                $preLoginData = json_decode(stripslashes($_COOKIE['mygo_pre_login_data']), true);
+                if ($preLoginData && isset($preLoginData['email']) && is_email($preLoginData['email'])) {
+                    $email = $preLoginData['email'];
+                    error_log('MYGO LineAuth: Using email from cookie: ' . $email);
+                }
+            }
         }
+        
+        // 如果還是沒有 email，回傳錯誤
+        if (empty($email) || !is_email($email)) {
+            error_log('MYGO LineAuth: No valid email provided');
+            return [
+                'success' => false,
+                'error' => __('請提供有效的 email 地址', 'mygo-plus-one'),
+            ];
+        }
+        
+        // 檢查 email 是否已被使用
+        if (email_exists($email)) {
+            error_log('MYGO LineAuth: Email already exists: ' . $email);
+            return [
+                'success' => false,
+                'error' => __('此 email 已被使用，請使用其他 email 或直接登入', 'mygo-plus-one'),
+            ];
+        }
+        
+        // 使用 email 前綴作為使用者名稱
+        $emailPrefix = explode('@', $email)[0];
+        $username = sanitize_user($emailPrefix, true);
         
         // 確保使用者名稱唯一
         $originalUsername = $username;
@@ -346,22 +374,11 @@ class LineAuthHandler implements LineAuthHandlerInterface
             $counter++;
         }
         
-        // Email 處理：
-        // 1. 優先使用 LINE 提供的真實 email
-        // 2. 如果沒有，檢查是否有預先填寫的 email（從 sessionStorage）
-        // 3. 最後才使用臨時 email
-        $hasRealEmail = !empty($lineProfile['email']);
-        $email = $lineProfile['email'];
-        
-        if (!$hasRealEmail) {
-            // 嘗試從 user meta 取得預先填寫的 email（由前端儲存）
-            // 注意：這裡無法直接存取 sessionStorage，需要前端在登入成功後透過 AJAX 傳送
-            $email = $username . '@temp.line.mygo.local';
-        }
-        
+        // 建立使用者（使用真實 email）
         $userId = wp_create_user($username, wp_generate_password(20, true, true), $email);
         
         if (is_wp_error($userId)) {
+            error_log('MYGO LineAuth: wp_create_user failed: ' . $userId->get_error_message());
             return [
                 'success' => false,
                 'error' => $userId->get_error_message(),
@@ -374,11 +391,6 @@ class LineAuthHandler implements LineAuthHandlerInterface
             'display_name' => $displayName,
             'first_name' => $displayName,
         ]);
-        
-        // 如果沒有真實 email，標記需要補充
-        if (!$hasRealEmail) {
-            update_user_meta($userId, '_mygo_needs_email', true);
-        }
 
         // 同步資料
         $this->syncUserData($lineProfile, $userId);
@@ -387,13 +399,14 @@ class LineAuthHandler implements LineAuthHandlerInterface
         wp_set_current_user($userId);
         wp_set_auth_cookie($userId);
 
+        error_log('MYGO LineAuth: User created successfully - ID: ' . $userId . ', Email: ' . $email);
+
         // 新用戶一定需要完善資料
         return [
             'success' => true,
             'user_id' => $userId,
             'is_new' => true,
             'needs_profile' => true,
-            'needs_email' => !$hasRealEmail,  // 標記是否需要補充 email
         ];
     }
 }
