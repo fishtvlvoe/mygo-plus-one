@@ -496,7 +496,7 @@ class FluentCartService
         $tableName = $wpdb->prefix . 'fct_product_details';
         
         // 檢查表是否存在
-        if ($wpdb->get_var("SHOW TABLES LIKE '{$tableName}'") !== $tableName) {
+        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tableName)) !== $tableName) {
             error_log('MYGO FluentCartService: fct_product_details table not found');
             return;
         }
@@ -522,12 +522,13 @@ class FluentCartService
         
         $tableName = $wpdb->prefix . 'fct_product_variations';
         
-        if ($wpdb->get_var("SHOW TABLES LIKE '{$tableName}'") !== $tableName) {
+        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tableName)) !== $tableName) {
             error_log('MYGO FluentCartService: fct_product_variations table not found');
             return;
         }
         
         // 先查詢表結構，確認欄位名稱
+        // 注意：SHOW COLUMNS 不支援 prepare，但表名來自 $wpdb->prefix，是安全的
         $columns = $wpdb->get_col("SHOW COLUMNS FROM {$tableName}");
         error_log('MYGO FluentCartService: fct_product_variations columns = ' . json_encode($columns));
         

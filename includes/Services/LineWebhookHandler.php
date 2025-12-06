@@ -422,7 +422,11 @@ class LineWebhookHandler implements LineWebhookHandlerInterface
         // 取得所有已綁定 LINE 的使用者
         global $wpdb;
         $lineUsers = $wpdb->get_col(
-            "SELECT meta_value FROM {$wpdb->usermeta} WHERE meta_key = '_mygo_line_uid' AND meta_value != ''"
+            $wpdb->prepare(
+                "SELECT meta_value FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value != %s",
+                '_mygo_line_uid',
+                ''
+            )
         );
 
         if (empty($lineUsers)) {

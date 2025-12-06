@@ -43,22 +43,33 @@ if (isset($_POST['mygo_fix_product_prices']) && wp_verify_nonce($_POST['_wpnonce
     $table = $wpdb->prefix . 'fct_product_variations';
     
     // 找出價格小於 10000 的商品（可能是舊格式）
-    $updated = $wpdb->query("
-        UPDATE {$table} 
-        SET item_price = item_price * 100,
-            updated_at = NOW()
-        WHERE item_price < 10000 AND item_price > 0
-    ");
+    $updated = $wpdb->query(
+        $wpdb->prepare(
+            "UPDATE {$table} 
+            SET item_price = item_price * %d,
+                updated_at = NOW()
+            WHERE item_price < %d AND item_price > %d",
+            100,
+            10000,
+            0
+        )
+    );
     
     // 同時更新 product_details 表
     $details_table = $wpdb->prefix . 'fct_product_details';
-    $wpdb->query("
-        UPDATE {$details_table} 
-        SET min_price = min_price * 100,
-            max_price = max_price * 100,
-            updated_at = NOW()
-        WHERE min_price < 10000 AND min_price > 0
-    ");
+    $wpdb->query(
+        $wpdb->prepare(
+            "UPDATE {$details_table} 
+            SET min_price = min_price * %d,
+                max_price = max_price * %d,
+                updated_at = NOW()
+            WHERE min_price < %d AND min_price > %d",
+            100,
+            100,
+            10000,
+            0
+        )
+    );
     
     $fix_price_message = '<div style="background: #d1fae5; color: #065f46; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">已修正 ' . $updated . ' 個商品的價格格式</div>';
 }
@@ -97,9 +108,13 @@ function mygo_create_test_seller_account() {
 global $wpdb;
 $spaces = [];
 $table_name = $wpdb->prefix . 'fcom_spaces';
-if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") === $table_name) {
+if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
     $spaces = $wpdb->get_results(
-        "SELECT id, title, slug, privacy FROM {$table_name} WHERE type = 'community' AND status = 'published' ORDER BY title ASC",
+        $wpdb->prepare(
+            "SELECT id, title, slug, privacy FROM {$table_name} WHERE type = %s AND status = %s ORDER BY title ASC",
+            'community',
+            'published'
+        ),
         ARRAY_A
     );
 }

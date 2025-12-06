@@ -414,7 +414,12 @@ class Plugin
                 
                 // 5. 刪除所有 post meta
                 global $wpdb;
-                $wpdb->delete($wpdb->postmeta, ['post_id' => $productId], ['%d']);
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "DELETE FROM {$wpdb->postmeta} WHERE post_id = %d",
+                        $productId
+                    )
+                );
                 
                 if ($cartDeleted) {
                     $deletedCount++;

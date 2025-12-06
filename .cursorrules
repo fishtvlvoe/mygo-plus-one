@@ -1,0 +1,101 @@
+# MYGO +1 WordPress 外掛開發規範
+
+這些是必須遵守的開發規範，每次開發時都要遵循。
+
+## 版本號管理
+
+每次修改程式碼並推送到 GitHub 時，必須更新版本號：
+
+1. 修改 `mygo-plus-one.php` 中的兩處版本號：
+   - Plugin Header 的 `Version: x.x.x`
+   - `MYGO_PLUGIN_VERSION` 常數
+
+2. 版本號規則：
+   - `fix:` → 增加修訂號（1.0.2 → 1.0.3）
+   - `feat:` → 增加次版本號（1.0.3 → 1.1.0）
+   - `BREAKING CHANGE:` → 增加主版本號（1.1.0 → 2.0.0）
+
+## 命名規範（必須遵守）
+
+- 所有函數、類別、變數都要加上 `mygo_` 前綴
+- 選項名稱也要加 `mygo_` 前綴
+- 避免使用通用名稱如 `init()`、`process()`
+
+範例：
+- ✅ `function mygo_get_user_data()`
+- ✅ `add_option('mygo_settings', $data)`
+- ❌ `function get_user_data()`（沒有前綴）
+
+## 安全性規範（必須遵守）
+
+### 輸出時必須轉義：
+- `esc_html()` - HTML 內容
+- `esc_attr()` - HTML 屬性
+- `esc_url()` - URL
+- `wp_kses_post()` - 安全的 HTML 標籤
+
+### 輸入時必須清理：
+- `sanitize_text_field()` - 文字欄位
+- `sanitize_email()` - email
+- `absint()` - 正整數
+- `wp_unslash()` - 移除斜線
+
+## WordPress 核心原則
+
+1. **Hooks 使用**：
+   - Actions 不需要回傳值
+   - Filters 必須回傳修改後的值
+
+2. **條件檢查**：
+   - 檢查執行環境（`is_admin()`, `is_singular()`, `in_the_loop()`）
+   - 檢查使用者權限（`current_user_can()`）
+
+3. **資源載入**：
+   - 必須使用 `wp_enqueue_style()` 和 `wp_enqueue_script()`
+   - 不直接在 HTML 中載入 CSS/JS
+
+4. **AJAX 處理**：
+   - 必須驗證 nonce（`check_ajax_referer()`）
+   - 必須檢查權限
+   - 必須清理輸入
+
+5. **資料庫操作**：
+   - 使用 `$wpdb->prepare()` 防止 SQL 注入
+   - 不使用字串拼接 SQL
+
+6. **除錯**：
+   - 使用 `error_log()` 而非 `var_dump()` 或 `print_r()`
+
+7. **檔案保護**：
+   - 所有 PHP 檔案頂部必須有：`if (!defined('ABSPATH')) { exit; }`
+
+8. **國際化**：
+   - 所有使用者可見文字必須包裝在翻譯函數中（`__()`, `_e()`, `esc_html__()` 等）
+   - 文字域使用：`'mygo-plus-one'`
+
+## 開發檢查清單
+
+在提交程式碼前，確認：
+- [ ] 所有函數、類別、變數都有 `mygo_` 前綴
+- [ ] 所有輸出都經過轉義
+- [ ] 所有輸入都經過清理
+- [ ] 使用 `wp_enqueue_*` 載入資源
+- [ ] AJAX 請求有 nonce 驗證
+- [ ] 有適當的權限檢查
+- [ ] 有條件檢查避免在錯誤的地方執行
+- [ ] 所有使用者可見文字都包裝在翻譯函數中
+- [ ] 資料庫查詢使用 `$wpdb->prepare()`
+- [ ] 版本號已更新
+- [ ] 使用 `error_log()` 而非 `var_dump()`
+
+## 常見錯誤避免
+
+1. **Nonce 驗證失敗**：使用 Cookie 儲存資料，在 callback 頁面處理
+2. **中文使用者名稱**：使用 email 前綴或 UID 作為使用者名稱
+3. **資源載入順序錯誤**：使用 `wp_enqueue_*` 並正確宣告依賴項
+4. **在錯誤的地方執行程式碼**：使用條件函數檢查執行環境
+
+---
+
+詳細規範請參考：`DEVELOPMENT-GUIDELINES.md`
+
