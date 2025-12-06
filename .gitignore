@@ -22,6 +22,9 @@ Thumbs.db
 .idea/
 *.sublime-project
 *.sublime-workspace
+.kiro/
+*.kiro
+.cursor/
 
 # Temporary files
 *.log

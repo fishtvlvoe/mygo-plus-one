@@ -152,35 +152,24 @@ class FluentCommunityAuthCustomizer
                             繼續使用 LINE <?php echo $isRegister ? '註冊' : '登入'; ?>
                         </button>
                     </form>
-                    <script>
-                    // 直接解析 URL 字串，避免瀏覽器自動編碼
-                    (function() {
-                        var authUrl = <?php echo json_encode($authUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
-                        var form = document.getElementById('mygo-line-form');
-                        
-                        // 手動分割 URL
-                        var parts = authUrl.split('?');
-                        if (parts.length === 2) {
-                            form.action = parts[0];
-                            
-                            // 手動解析查詢參數（避免使用 URL 物件）
-                            var params = parts[1].split('&');
-                            params.forEach(function(param) {
-                                var keyValue = param.split('=');
-                                if (keyValue.length === 2) {
-                                    var input = document.createElement('input');
-                                    input.type = 'hidden';
-                                    input.name = decodeURIComponent(keyValue[0]);
-                                    input.value = decodeURIComponent(keyValue[1]);
-                                    form.appendChild(input);
-                                }
-                            });
-                        }
-                        
-                        console.log('MYGO: Form action:', form.action);
-                        console.log('MYGO: Form inputs:', Array.from(form.querySelectorAll('input[type="hidden"]')).map(i => i.name + '=' + i.value));
-                    })();
-                    </script>
+                    <?php
+                    // 載入個人資料編輯 JavaScript
+                    wp_enqueue_script(
+                        'mygo-profile-edit',
+                        plugin_dir_url(dirname(dirname(__DIR__))) . 'assets/js/profile-edit.js',
+                        [],
+                        MYGO_PLUGIN_VERSION,
+                        true
+                    );
+                    
+                    // 傳遞設定到 JavaScript
+                    wp_localize_script('mygo-profile-edit', 'mygoProfileEdit', [
+                        'authUrl' => $authUrl,
+                        'defaultRedirectUrl' => esc_js(home_url('/portal/')),
+                    ]);
+                    
+                    wp_print_scripts('mygo-profile-edit');
+                    ?>
                 </form>
                 
                 <div style="padding-top: 24px; border-top: 1px solid #e5e5e5;">
@@ -199,86 +188,7 @@ class FluentCommunityAuthCustomizer
                 </div>
             </div>
         </div>
-        
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('mygo-pre-login-form');
-            const continueBtn = document.getElementById('mygo-continue-to-line');
-            
-            const lineForm = document.getElementById('mygo-line-form');
-            lineForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // 驗證表單
-                const email = form.querySelector('[name="email"]').value.trim();
-                const phone = form.querySelector('[name="phone"]').value.trim();
-                const address = form.querySelector('[name="address"]').value.trim();
-                const shipping = form.querySelector('[name="shipping_method"]').value;
-                
-                let hasError = false;
-                
-                // 清除之前的錯誤
-                form.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
-                
-                // 驗證 email
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    showError(form.querySelector('[name="email"]'), '請輸入有效的 email 地址');
-                    hasError = true;
-                }
-                
-                // 驗證電話
-                const phoneClean = phone.replace(/[^\d]/g, '');
-                if (!/^09\d{8}$/.test(phoneClean)) {
-                    showError(form.querySelector('[name="phone"]'), '請輸入有效的手機號碼（09xxxxxxxx）');
-                    hasError = true;
-                }
-                
-                // 驗證地址
-                if (address.length < 10) {
-                    showError(form.querySelector('[name="address"]'), '請輸入完整的地址（至少 10 個字元）');
-                    hasError = true;
-                }
-                
-                // 驗證寄送方式
-                if (!shipping) {
-                    showError(form.querySelector('[name="shipping_method"]'), '請選擇寄送方式');
-                    hasError = true;
-                }
-                
-                if (hasError) {
-                    return false;
-                }
-                
-                // 儲存資料到 sessionStorage
-                sessionStorage.setItem('mygo_pre_login_data', JSON.stringify({
-                    email: email,
-                    phone: phoneClean,
-                    address: address,
-                    shipping_method: shipping
-                }));
-                
-                // 儲存原始要訪問的頁面
-                const urlParams = new URLSearchParams(window.location.search);
-                const redirectTo = urlParams.get('redirect_to') || '<?php echo esc_js(home_url('/portal/')); ?>';
-                sessionStorage.setItem('mygo_redirect_after_login', redirectTo);
-                
-                // 提交 form 導向 LINE 登入
-                console.log('MYGO: Submitting form to LINE');
-                lineForm.submit();
-                return false;
-            });
-            
-            function showError(input, message) {
-                const errorEl = input.parentElement.querySelector('.error-msg');
-                if (errorEl) {
-                    errorEl.textContent = message;
-                    errorEl.style.display = 'block';
-                }
-                input.style.borderColor = '#ff3b30';
-            }
-        });
-        </script>
+
         <?php
     }
 

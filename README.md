@@ -511,6 +511,13 @@ ssh -T git@github.com
 
 ---
 
+## 開發文件
+
+- [開發規範](DEVELOPMENT-GUIDELINES.md) - WordPress 外掛開發技術規範
+- [協作規範](CONTRIBUTING.md) - Git 流程、Code Review 等協作規範
+- [部署檢查清單](DEPLOYMENT-CHECKLIST.md) - 部署前的檢查項目
+- [Git 指令參考](GIT-COMMANDS.md) - 常用 Git 指令
+
 ## 授權
 
 本專案為私有專案，未經授權不得使用或散布。
