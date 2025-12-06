@@ -404,6 +404,7 @@ class Plugin
                         }
                     } catch (\Exception $e) {
                         error_log('MYGO: Failed to delete feed ' . $feedId . ': ' . $e->getMessage());
+                        $errors[] = __('貼文 ID', 'mygo-plus-one') . " {$feedId}: " . __('刪除失敗', 'mygo-plus-one');
                     }
                 }
                 

@@ -74,10 +74,14 @@ class LineLoginPage
         // 如果已登入，導向到社群頁面（除非是管理員且帶有 debug 參數）
         if (is_user_logged_in()) {
             $isAdmin = current_user_can('manage_options');
-            $isDebug = isset($_GET['debug']) && $_GET['debug'] === '1';
+            // 只允許管理員在開發環境或特定 IP 下使用 debug 模式
+            $isDebug = $isAdmin 
+                && isset($_GET['debug']) 
+                && $_GET['debug'] === '1'
+                && (WP_DEBUG || in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']));
             
             // 只有管理員在 debug 模式下才顯示管理頁面
-            if ($isAdmin && $isDebug) {
+            if ($isDebug) {
                 $redirectUri = home_url('/mygo-line-callback/');
                 $authUrl = $this->authHandler->getAuthUrl($redirectUri);
                 $currentUser = wp_get_current_user();

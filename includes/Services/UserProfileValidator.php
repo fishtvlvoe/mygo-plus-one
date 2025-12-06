@@ -164,9 +164,8 @@ class UserProfileValidator
      */
     public function validatePhone(string $phone): bool
     {
-        // 台灣手機號碼格式：09xxxxxxxx
-        $phone = preg_replace('/[^\d]/', '', $phone);
-        return preg_match('/^09\d{8}$/', $phone) === 1;
+        $result = PhoneValidator::validate($phone);
+        return $result['valid'];
     }
 
     /**
@@ -225,11 +224,11 @@ class UserProfileValidator
 
         // 電話
         if (isset($data['phone'])) {
-            $phone = preg_replace('/[^\d]/', '', $data['phone']);
-            if (!$this->validatePhone($phone)) {
-                $errors['phone'] = '請輸入有效的手機號碼（09xxxxxxxx）';
+            $result = PhoneValidator::validate($data['phone']);
+            if (!$result['valid']) {
+                $errors['phone'] = $result['error'];
             } else {
-                $sanitized['phone'] = $phone;
+                $sanitized['phone'] = $result['sanitized'];
             }
         }
 
