@@ -250,13 +250,13 @@ class UserProfileModal
         // 驗證 nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mygo_ajax')) {
             error_log('MYGO AJAX: Nonce verification failed');
-            wp_send_json_error(['message' => 'Nonce 驗證失敗']);
+            wp_send_json_error(['message' => __('Nonce 驗證失敗', 'mygo-plus-one')]);
             return;
         }
 
         if (!is_user_logged_in()) {
             error_log('MYGO AJAX: User not logged in');
-            wp_send_json_error(['message' => '請先登入']);
+            wp_send_json_error(['message' => __('請先登入', 'mygo-plus-one')]);
             return;
         }
 
@@ -285,7 +285,7 @@ class UserProfileModal
         if (!$validation['valid']) {
             error_log('MYGO AJAX: Validation failed');
             wp_send_json_error([
-                'message' => '資料驗證失敗',
+                'message' => __('資料驗證失敗', 'mygo-plus-one'),
                 'errors' => $validation['errors'],
             ]);
             return;
@@ -296,7 +296,7 @@ class UserProfileModal
         error_log('MYGO AJAX: Profile updated successfully');
 
         wp_send_json_success([
-            'message' => '資料已儲存',
+            'message' => __('資料已儲存', 'mygo-plus-one'),
         ]);
     }
 
@@ -308,7 +308,7 @@ class UserProfileModal
         check_ajax_referer('mygo_ajax', 'nonce');
 
         if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => '請先登入']);
+            wp_send_json_error(['message' => __('請先登入', 'mygo-plus-one')]);
         }
 
         $feedId = intval($_POST['feed_id'] ?? 0);
@@ -317,7 +317,7 @@ class UserProfileModal
         $quantity = max(1, intval($_POST['quantity'] ?? 1));
 
         if (!$feedId || !$productId || !$variant) {
-            wp_send_json_error(['message' => '參數錯誤']);
+            wp_send_json_error(['message' => __('參數錯誤', 'mygo-plus-one')]);
         }
 
         // 建立訂單
@@ -331,12 +331,12 @@ class UserProfileModal
 
         if ($result['success']) {
             wp_send_json_success([
-                'message' => '訂單已建立',
+                'message' => __('訂單已建立', 'mygo-plus-one'),
                 'order_id' => $result['order_id'],
             ]);
         } else {
             wp_send_json_error([
-                'message' => $result['error'] ?? '訂單建立失敗',
+                'message' => $result['error'] ?? __('訂單建立失敗', 'mygo-plus-one'),
             ]);
         }
     }

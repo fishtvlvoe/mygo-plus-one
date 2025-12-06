@@ -88,13 +88,13 @@ class ProfileEditPage
                 if ($validation['valid']) {
                     // 儲存資料
                     $validator->updateUserProfile($currentUser->ID, $validation['sanitized']);
-                    $message = '個人資料已更新';
+                    $message = __('個人資料已更新', 'mygo-plus-one');
                     $messageType = 'success';
                     
                     // 重新取得資料
                     $profile = $validator->getUserProfile($currentUser->ID);
                 } else {
-                    $message = '資料驗證失敗：' . implode('、', $validation['errors']);
+                    $message = __('資料驗證失敗', 'mygo-plus-one') . '：' . implode('、', $validation['errors']);
                     $messageType = 'error';
                     $profile = $validator->getUserProfile($currentUser->ID);
                 }

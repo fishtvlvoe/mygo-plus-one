@@ -366,18 +366,18 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_bulk_delete', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $productIds = $_POST['product_ids'] ?? [];
         
         if (empty($productIds) || !is_array($productIds)) {
-            wp_send_json_error('請選擇要刪除的商品');
+            wp_send_json_error(__('請選擇要刪除的商品', 'mygo-plus-one'));
         }
 
         $cartService = new \Mygo\Services\FluentCartService();
@@ -439,7 +439,7 @@ class Plugin
                 'errors' => $errors,
             ]);
         } else {
-            wp_send_json_error('刪除失敗：' . implode(', ', $errors));
+            wp_send_json_error(__('刪除失敗', 'mygo-plus-one') . '：' . implode(', ', $errors));
         }
     }
 
@@ -450,12 +450,12 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_admin', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $orderId = intval($_POST['order_id'] ?? 0);
@@ -463,16 +463,16 @@ class Plugin
         $value = filter_var($_POST['value'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         if (!$orderId || !$statusType) {
-            wp_send_json_error('參數錯誤');
+            wp_send_json_error(__('參數錯誤', 'mygo-plus-one'));
         }
 
         $cartService = new \Mygo\Services\FluentCartService();
         $result = $cartService->updateOrderStatus($orderId, $statusType, $value, get_current_user_id());
 
         if ($result) {
-            wp_send_json_success(['message' => '狀態已更新']);
+            wp_send_json_success(['message' => __('狀態已更新', 'mygo-plus-one')]);
         } else {
-            wp_send_json_error('更新失敗');
+            wp_send_json_error(__('更新失敗', 'mygo-plus-one'));
         }
     }
 
@@ -483,24 +483,24 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_admin', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $orderId = intval($_POST['order_id'] ?? 0);
         $notes = sanitize_textarea_field($_POST['notes'] ?? '');
 
         if (!$orderId) {
-            wp_send_json_error('參數錯誤');
+            wp_send_json_error(__('參數錯誤', 'mygo-plus-one'));
         }
 
         update_post_meta($orderId, '_mygo_notes', $notes);
         wp_send_json_success([
-            'message' => '備註已儲存',
+            'message' => __('備註已儲存', 'mygo-plus-one'),
             'redirect' => admin_url('admin.php?page=mygo-orders')
         ]);
     }
@@ -512,12 +512,12 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_admin', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $userId = intval($_POST['user_id'] ?? 0);
@@ -527,7 +527,7 @@ class Plugin
         $shippingMethod = sanitize_text_field($_POST['shipping_method'] ?? '');
 
         if (!$userId) {
-            wp_send_json_error('參數錯誤');
+            wp_send_json_error(__('參數錯誤', 'mygo-plus-one'));
         }
 
         update_user_meta($userId, '_mygo_buyer_name', $buyerName);
@@ -535,7 +535,7 @@ class Plugin
         update_user_meta($userId, '_mygo_address', $address);
         update_user_meta($userId, '_mygo_shipping_preference', $shippingMethod);
 
-        wp_send_json_success(['message' => '買家資訊已更新']);
+        wp_send_json_success(['message' => __('買家資訊已更新', 'mygo-plus-one')]);
     }
     
     /**
@@ -545,18 +545,18 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_admin', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $orderId = intval($_POST['order_id'] ?? 0);
 
         if (!$orderId) {
-            wp_send_json_error('參數錯誤');
+            wp_send_json_error(__('參數錯誤', 'mygo-plus-one'));
         }
 
         global $wpdb;
@@ -567,11 +567,11 @@ class Plugin
 
         if ($result) {
             wp_send_json_success([
-                'message' => '訂單已刪除',
+                'message' => __('訂單已刪除', 'mygo-plus-one'),
                 'redirect' => admin_url('admin.php?page=mygo-orders')
             ]);
         } else {
-            wp_send_json_error('刪除失敗');
+            wp_send_json_error(__('刪除失敗', 'mygo-plus-one'));
         }
     }
     
@@ -582,12 +582,12 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_admin', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $orderId = intval($_POST['order_id'] ?? 0);
@@ -596,7 +596,7 @@ class Plugin
         $quantity = intval($_POST['quantity'] ?? 1);
 
         if (!$orderId || !$productId) {
-            wp_send_json_error('參數錯誤');
+            wp_send_json_error(__('參數錯誤', 'mygo-plus-one'));
         }
 
         global $wpdb;
@@ -633,7 +633,7 @@ class Plugin
         );
 
         wp_send_json_success([
-            'message' => '訂單資訊已更新',
+            'message' => __('訂單資訊已更新', 'mygo-plus-one'),
             'total' => $unitPrice * $quantity
         ]);
     }
@@ -645,18 +645,18 @@ class Plugin
     {
         // 驗證 nonce
         if (!check_ajax_referer('mygo_admin', 'nonce', false)) {
-            wp_send_json_error('安全驗證失敗');
+            wp_send_json_error(__('安全驗證失敗', 'mygo-plus-one'));
         }
 
         // 檢查權限
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('您沒有權限執行此操作');
+            wp_send_json_error(__('您沒有權限執行此操作', 'mygo-plus-one'));
         }
 
         $orderIds = $_POST['order_ids'] ?? [];
         
         if (empty($orderIds) || !is_array($orderIds)) {
-            wp_send_json_error('請選擇要刪除的訂單');
+            wp_send_json_error(__('請選擇要刪除的訂單', 'mygo-plus-one'));
         }
 
         global $wpdb;
@@ -674,10 +674,11 @@ class Plugin
         if ($deletedCount > 0) {
             wp_send_json_success([
                 'deleted' => $deletedCount,
-                'message' => "已刪除 {$deletedCount} 筆訂單"
+                /* translators: %d: number of deleted orders */
+                'message' => sprintf(__('已刪除 %d 筆訂單', 'mygo-plus-one'), $deletedCount)
             ]);
         } else {
-            wp_send_json_error('刪除失敗');
+            wp_send_json_error(__('刪除失敗', 'mygo-plus-one'));
         }
     }
 }

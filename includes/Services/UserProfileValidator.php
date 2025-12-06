@@ -216,7 +216,7 @@ class UserProfileValidator
         if (isset($data['email'])) {
             $email = sanitize_email($data['email']);
             if (!is_email($email)) {
-                $errors['email'] = '請輸入有效的 email 地址';
+                $errors['email'] = __('請輸入有效的 email 地址', 'mygo-plus-one');
             } else {
                 $sanitized['email'] = $email;
             }
@@ -236,7 +236,7 @@ class UserProfileValidator
         if (isset($data['address'])) {
             $address = sanitize_text_field($data['address']);
             if (!$this->validateAddress($address)) {
-                $errors['address'] = '請輸入完整的地址（至少 10 個字元）';
+                $errors['address'] = __('請輸入完整的地址（至少 10 個字元）', 'mygo-plus-one');
             } else {
                 $sanitized['address'] = $address;
             }
@@ -246,7 +246,7 @@ class UserProfileValidator
         if (isset($data['shipping_method'])) {
             $method = sanitize_text_field($data['shipping_method']);
             if (!$this->validateShippingMethod($method)) {
-                $errors['shipping_method'] = '請選擇有效的寄送方式';
+                $errors['shipping_method'] = __('請選擇有效的寄送方式', 'mygo-plus-one');
             } else {
                 $sanitized['shipping_method'] = $method;
             }
